@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Tracker Kuliah v2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="app-head">
+      <h1>Task Tracker Kuliah <small>v2 · REST API</small></h1>
+      <label class="mode">
+        Jaringan
+        <select id="mode">
+          <option value="normal">Normal</option>
+          <option value="lambat">Lambat</option>
+          <option value="offline">Offline</option>
+          <option value="error500">Error 500</option>
+        </select>
+      </label>
+    </header>
+
+    <form id="form-tugas" novalidate>
+      <input id="judul" type="text" placeholder="Judul tugas (min. 3 karakter)" autocomplete="off">
+      <div class="baris">
+        <select id="matkul" aria-label="Mata kuliah"></select>
+        <input id="deadline" type="date" aria-label="Deadline">
+        <button id="btn-tambah" type="submit">Tambah</button>
+      </div>
+      <p id="form-error" class="pesan-error" role="alert" hidden></p>
+    </form>
+
+    <div class="toolbar">
+      <div class="filter" id="filter">
+        <button data-filter="semua" class="aktif">Semua</button>
+        <button data-filter="aktif">Aktif</button>
+        <button data-filter="selesai">Selesai</button>
+      </div>
+      <input id="cari" type="search" placeholder="Cari tugas…" aria-label="Cari tugas">
+      <span id="jumlah" class="jumlah"></span>
+    </div>
+
+    <ul id="daftar" class="daftar" aria-live="polite"></ul>
+  </main>
+
+  <!-- Mock API resmi dari dosen: harus dimuat SEBELUM app.js -->
+  <script src="https://fuaddary.github.io/Pemrograman-Web/assets/mock-api-kampus.js"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

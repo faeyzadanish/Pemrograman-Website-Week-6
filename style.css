@@ -1,0 +1,58 @@
+:root {
+  --bg: #f3f5f9;
+  --kartu: #ffffff;
+  --teks: #1c2433;
+  --redup: #5d6b82;
+  --garis: #d9dfe9;
+  --utama: #14213d;
+  --bahaya: #c0392b;
+  --bahaya-bg: #fdf0ee;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--teks); font-family: var(--font); line-height: 1.5; }
+.app { max-width: 640px; margin: 2rem auto; padding: 1.25rem; background: var(--kartu); border-radius: 14px; box-shadow: 0 1px 3px rgba(20,33,61,.12); }
+
+.app-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+h1 { font-size: 1.35rem; margin: 0; }
+h1 small { font-size: .8rem; font-weight: 500; color: var(--redup); }
+.mode { font-size: .85rem; color: var(--redup); display: flex; align-items: center; gap: .4rem; }
+
+input, select, button { font: inherit; }
+input[type="text"], input[type="date"], input[type="search"], select {
+  padding: .6rem .75rem; border: 1px solid var(--garis); border-radius: 8px; background: #fff; color: inherit; min-width: 0;
+}
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--utama); outline-offset: 2px; }
+
+#form-tugas { margin-top: 1rem; display: grid; gap: .6rem; }
+#judul { width: 100%; }
+.baris { display: grid; grid-template-columns: 1fr 1fr auto; gap: .6rem; }
+@media (max-width: 520px) { .baris { grid-template-columns: 1fr; } }
+
+button { cursor: pointer; border-radius: 8px; border: 1px solid var(--garis); background: #fff; padding: .55rem .9rem; color: inherit; }
+#btn-tambah { background: var(--utama); border-color: var(--utama); color: #fff; font-weight: 600; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+
+.pesan-error { margin: 0; padding: .55rem .75rem; border-radius: 8px; background: var(--bahaya-bg); color: var(--bahaya); font-size: .9rem; }
+
+.toolbar { margin: 1.25rem 0 .75rem; display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.filter { display: flex; gap: .4rem; }
+.filter button.aktif { background: var(--utama); border-color: var(--utama); color: #fff; }
+#cari { flex: 1; min-width: 120px; }
+.jumlah { margin-left: auto; color: var(--redup); font-size: .9rem; }
+
+.daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.tugas { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--garis); border-radius: 10px; }
+.tugas input[type="checkbox"] { width: 1.15rem; height: 1.15rem; flex: none; }
+.tugas .isi { flex: 1; min-width: 0; }
+.tugas .judul { display: block; word-break: break-word; }
+.tugas .meta { font-size: .85rem; color: var(--redup); }
+.tugas.selesai .judul { text-decoration: line-through; color: var(--redup); }
+.tugas .hapus { color: var(--bahaya); border-color: #e8b4ad; background: var(--bahaya-bg); padding: .3rem .6rem; }
+
+.status { text-align: center; color: var(--redup); padding: 1.5rem 1rem; }
+.status.error { color: var(--bahaya); }
+.status button { margin-top: .6rem; }
+.skeleton { height: 58px; border-radius: 10px; background: linear-gradient(90deg, #eef1f6 25%, #e3e8f0 50%, #eef1f6 75%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
