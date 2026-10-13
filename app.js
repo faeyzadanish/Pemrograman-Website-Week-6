@@ -118,4 +118,36 @@ $("#form-tugas").addEventListener("submit", async (e) => {
     tombol.textContent = "Tambah";
   }
 });
+// ===== 6. PATCH & DELETE lewat EVENT DELEGATION (1 listener untuk semua item) =====
+daftar.addEventListener("click", async (e) => {
+  if (e.target.id === "coba-lagi") return muat();
+  const aksi = e.target.dataset.aksi;
+  if (aksi !== "hapus") return;
+  const id = Number(e.target.closest(".tugas").dataset.id);
+  e.target.disabled = true;
+  try {
+    await api(`/api/tugas/${id}`, { method: "DELETE" }); // 204: tidak ada body
+    state.tugas = state.tugas.filter((t) => t.id !== id);
+  } catch (err) {
+    alert(err.message);
+  }
+  render();
+});
+
+daftar.addEventListener("change", async (e) => {
+  if (e.target.dataset.aksi !== "selesai") return;
+  const id = Number(e.target.closest(".tugas").dataset.id);
+  const item = state.tugas.find((t) => t.id === id);
+  const lama = item.selesai;
+  item.selesai = e.target.checked; // BONUS optimistic update: ubah tampilan dulu
+  render();
+  try {
+    const dariServer = await api(`/api/tugas/${id}`, { method: "PATCH", body: { selesai: item.selesai } });
+    Object.assign(item, dariServer); // sinkronkan dengan respons server
+  } catch (err) {
+    item.selesai = lama; // dibatalkan kalau server gagal
+    alert(err.message);
+  }
+  render();
+});
   muat();
