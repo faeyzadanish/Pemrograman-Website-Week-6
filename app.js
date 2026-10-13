@@ -74,7 +74,12 @@ function render() {
 }
 
 function isiMatkul() {
-  $("#matkul").innerHTML = state.matkul.map((m) => `<option>${esc(m)}</option>`).join("");
+  $("#matkul").innerHTML = state.matkul
+    .map((m) => {
+      const nama = typeof m === "string" ? m : (m.nama ?? m.name ?? m.matkul);
+      return `<option>${esc(nama)}</option>`;
+    })
+    .join("");
 }
 
 // ===== 4. GET: muat tugas + matkul PARALEL dengan Promise.all =====
@@ -150,4 +155,19 @@ daftar.addEventListener("change", async (e) => {
   }
   render();
 });
+// ===== 7. Filter, pencarian (BONUS debounce), dan mode jaringan =====
+$("#filter").addEventListener("click", (e) => {
+  if (!e.target.dataset.filter) return;
+  state.filter = e.target.dataset.filter;
+  document.querySelectorAll("#filter button").forEach((b) => b.classList.toggle("aktif", b === e.target));
+  render();
+});
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+$("#cari").addEventListener("input", debounce((e) => { state.kata = e.target.value; render(); }, 300));
+
+$("#mode").addEventListener("change", (e) => __API.setMode(e.target.value));
   muat();
