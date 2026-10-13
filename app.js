@@ -1,0 +1,96 @@
+// ===== 1. STATE: satu sumber kebenaran untuk seluruh tampilan =====
+const state = {
+  tugas: [],
+  matkul: [],
+  filter: "semua",
+  kata: "",
+  status: "loading", // "loading" | "ok" | "error"
+  error: "",
+};
+
+const $ = (s) => document.querySelector(s);
+const daftar = $("#daftar");
+
+// ===== 2. HELPER api(): satu pintu untuk semua request =====
+async function api(url, opsi = {}) {
+  let res;
+  try {
+    res = await fetch(url, {
+      ...opsi,
+      headers: { "Content-Type": "application/json" },
+      body: opsi.body ? JSON.stringify(opsi.body) : undefined,
+    });
+  } catch {
+    // fetch hanya reject kalau jaringan gagal (offline), BUKAN untuk 400/500
+    throw new Error("Tidak bisa terhubung ke server. Periksa koneksi lalu coba lagi.");
+  }
+  if (!res.ok) {
+    // fetch tetap "sukses" untuk 4xx/5xx, jadi res.ok harus dicek manual
+    let pesan = `Terjadi kesalahan di server (${res.status}).`;
+    try { const data = await res.json(); if (data.error) pesan = data.error; } catch {}
+    throw new Error(pesan);
+  }
+  return res.status === 204 ? null : res.json(); // 204 = tanpa body
+}
+
+// ===== 3. RENDER: gambar ulang UI dari state =====
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function tugasTampil() {
+  return state.tugas.filter((t) => {
+    const cocokFilter = state.filter === "semua" || (state.filter === "aktif" ? !t.selesai : t.selesai);
+    const cocokCari = t.judul.toLowerCase().includes(state.kata.toLowerCase());
+    return cocokFilter && cocokCari;
+  });
+}
+
+function render() {
+  const jumlah = $("#jumlah");
+  if (state.status === "loading") {
+    daftar.innerHTML = '<li class="skeleton"></li>'.repeat(3);
+    jumlah.textContent = "Memuat…";
+    return;
+  }
+  if (state.status === "error") {
+    daftar.innerHTML = `<li class="status error">${esc(state.error)}<br><button id="coba-lagi">Coba lagi</button></li>`;
+    jumlah.textContent = "";
+    return;
+  }
+  jumlah.textContent = `${state.tugas.filter((t) => !t.selesai).length} tugas aktif`;
+  const tampil = tugasTampil();
+  if (tampil.length === 0) {
+    daftar.innerHTML = `<li class="status">${state.tugas.length ? "Tidak ada tugas yang cocok." : "Belum ada tugas. Tambahkan tugas pertama di atas."}</li>`;
+    return;
+  }
+  daftar.innerHTML = tampil.map((t) => `
+    <li class="tugas ${t.selesai ? "selesai" : ""}" data-id="${t.id}">
+      <input type="checkbox" data-aksi="selesai" ${t.selesai ? "checked" : ""} aria-label="Tandai selesai">
+      <div class="isi">
+        <span class="judul">${esc(t.judul)}</span>
+        <span class="meta">${esc(t.matkul)}${t.deadline ? " · deadline " + esc(t.deadline) : ""}</span>
+      </div>
+      <button class="hapus" data-aksi="hapus" aria-label="Hapus tugas">✕</button>
+    </li>`).join("");
+}
+
+function isiMatkul() {
+  $("#matkul").innerHTML = state.matkul.map((m) => `<option>${esc(m)}</option>`).join("");
+}
+
+// ===== 4. GET: muat tugas + matkul PARALEL dengan Promise.all =====
+async function muat() {
+  state.status = "loading";
+  render();
+  try {
+    const [tugas, matkul] = await Promise.all([api("/api/tugas"), api("/api/matkul")]);
+    state.tugas = tugas;
+    state.matkul = matkul;
+    isiMatkul();
+    state.status = "ok";
+  } catch (err) {
+    state.status = "error";
+    state.error = err.message;
+  }
+  render();
+}
+  muat();
