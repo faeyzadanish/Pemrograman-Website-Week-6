@@ -93,4 +93,29 @@ async function muat() {
   }
   render();
 }
+// ===== 5. POST: tambah tugas =====
+$("#form-tugas").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const tombol = $("#btn-tambah");
+  const err = $("#form-error");
+  err.hidden = true;
+  tombol.disabled = true; // cegah klik ganda selama request berjalan
+  tombol.textContent = "Mengirim…";
+  try {
+    const baru = await api("/api/tugas", {
+      method: "POST",
+      body: { judul: $("#judul").value, matkul: $("#matkul").value, deadline: $("#deadline").value },
+    });
+    state.tugas.push(baru); // state dari respons server
+    $("#judul").value = "";
+    $("#deadline").value = "";
+    render();
+  } catch (e2) {
+    err.textContent = e2.message; // mis. "Judul minimal 3 karakter" (400)
+    err.hidden = false;
+  } finally {
+    tombol.disabled = false; // finally: selalu jalan, sukses maupun gagal
+    tombol.textContent = "Tambah";
+  }
+});
   muat();
